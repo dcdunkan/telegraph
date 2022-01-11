@@ -1,4 +1,4 @@
-import { DOMParser, Element, marky, Parser } from "./deps.ts";
+import { DOMParser, Element, marky, Parser } from "../deps.ts";
 import { NodeElement, Tag } from "./types.ts";
 
 /**
