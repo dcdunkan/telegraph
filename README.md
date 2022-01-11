@@ -5,7 +5,7 @@ This is a tiny Telegra.ph API wrapper for [Deno](https://deno.land) written in
 [here](https://telegra.ph/api#Available-methods) are available. See
 [Usage](#usage) for usage examples for each methods.
 
-See the [Deno module here](https://deno.land/x/telegraph@1.0.0).
+See the [Deno module here](https://deno.land/x/telegraph).
 
 ### Table of Contents
 
