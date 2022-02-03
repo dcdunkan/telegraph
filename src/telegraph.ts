@@ -1,6 +1,7 @@
 import * as types from "./types.ts";
 
-/** Officially available methods of Telegra.ph API. https://telegra.ph/api#Available-methods */
+/** Officially available methods of Telegra.ph API.
+ * https://telegra.ph/api#Available-methods */
 export type Method =
   | "createAccount"
   | "createPage"
@@ -21,7 +22,9 @@ export interface TelegraphOptions {
 }
 
 /**
- * This single important class helps you to create [Telegra.ph](https://telegra.ph) account instances and create pages (posts) through them.
+ * This single important class helps you to create
+ * [Telegra.ph](https://telegra.ph) account instances and create pages (posts)
+ * through them.
  *
  * With an account instance, you can create posts so easily! For example,
  * ```ts
@@ -45,7 +48,8 @@ export interface TelegraphOptions {
  * });
  * ```
  *
- * Wow, cool! You know something more cool? Connect to an existing account but also change the details of it.
+ * Wow, cool! You know something more cool? Connect to an existing account but
+ * also change the details of it.
  * ```ts
  * // Create a Telegra.ph account.
  * const tph = new Telegraph({
@@ -60,13 +64,14 @@ export interface TelegraphOptions {
  * Now that you have created an instance of Telegraph, let's move on.
  *
  * Call `setupAccount` before you do any other operations with your account.
- * But, if you are only passing in `accessToken` as options, you don't have to call this.
+ * But, if you are only passing in `accessToken` as options, you don't have to
+ * call this.
  * ```ts
  * await tph.setupAccount();
  * ```
  *
- * Now that you have connected your account, you can call any methods with the required arguments!
- * Try calling this:
+ * Now that you have connected your account, you can call any methods with the
+ * required arguments! Try calling this:
  *
  * ```ts
  * const post = await tph.create({
@@ -79,7 +84,8 @@ export interface TelegraphOptions {
  * console.log(post.url);
  * ```
  *
- * Read the JSDocs or the official documentation on GitHub to find out more about all methods and their usage.
+ * Read the JSDocs or the official documentation on GitHub to find out more
+ * about all methods and their usage.
  */
 export class Telegraph {
   private readonly API_ROOT: string = "https://api.telegra.ph/";
@@ -131,7 +137,8 @@ export class Telegraph {
    * await tph.setupAccount();
    * ```
    *
-   * @param config Values required for creating or connecting a Telegra.ph account. Pass in required values as the docs says.
+   * @param config Values required for creating or connecting a Telegra.ph
+   * account. Pass in required values as the docs says.
    */
   constructor(config: TelegraphOptions) {
     if (config.accessToken) this.accessToken = config.accessToken;
@@ -154,14 +161,16 @@ export class Telegraph {
   }
 
   /**
-   * Updates or creates a Telegraph account and assigns the access token to the account instance.
+   * Updates or creates a Telegraph account and assigns the access token to the
+   * account instance.
    *
    * ```ts
    * await tph.setupAccount();
    * ```
    *
-   * You have to call this method if you haven't passed `accessToken` to create an account **or**,
-   * if you have provided something with `accessToken` for updating the existing account -- while creating an account instance.
+   * You have to call this method if you haven't passed `accessToken` to create
+   * an account **or**, if you have provided something with `accessToken` for
+   * updating the existing account -- while creating an account instance.
    * @returns Information about the connected account.
    */
   async setupAccount(): Promise<types.Account> {
@@ -194,66 +203,8 @@ export class Telegraph {
     // If just access token.
     return await this.getAccount();
 
-    // What about no access token and no `short_name`?
-    // Already handled in constructor, I think that works.
-  }
-
-  /**
-   * Helps to upload local files upto 5 or 6MB (I think) to Telegraph's file uploading service and returns the URL of the uploaded file.
-   *
-   * Useful to add local images as a source for `<img>`.
-   *
-   * Supported file formats: `.jpg`, `.jpeg`, `.png`, `.gif` and `.mp4`.
-   *
-   * ```ts
-   * const imgUrl = await Telegraph.upload("./assets/images/banner.png");
-   * ```
-   *
-   * **This is not actually a part of the official Telegraph API**, at least, it does not have any official documentation.
-   *
-   * @param src The local or remote file path or URL.
-   * @returns Remote URL to the uploaded file.
-   */
-  public static async upload(
-    src: string | URL | Blob | Uint8Array | BufferSource,
-  ): Promise<string> {
-    let blob: Blob | BufferSource;
-
-    if (typeof src === "string") {
-      // Use the same URL.
-      const r = new RegExp("http(s?)://telegra.ph/file/(.+).(.+)", "i");
-      if (r.test(src)) return src.toLowerCase();
-      // Download file from external source.
-      if (src.startsWith("https://") || src.startsWith("http://")) {
-        const response = await fetch(src);
-        const buffer = await response.arrayBuffer();
-        blob = new Uint8Array(buffer);
-      } else {
-        // Probably (It should be) it's a file path.
-        await Deno.open(src).catch(() => {
-          throw new Error(`The file '${src}' does not exists`);
-        });
-        blob = await Deno.readFile(src);
-      }
-    } else if (src instanceof URL) {
-      blob = await Deno.readFile(src);
-    } else {
-      // Blob | Uint8Array | BufferSource?
-      blob = src;
-    }
-
-    const file = new File([blob], "blob");
-    const form = new FormData();
-    form.append("photo", file);
-
-    const res = await fetch("https://telegra.ph/upload", {
-      method: "POST",
-      body: form,
-    });
-    const json = await res.json();
-    if (json.error) throw new Error(json.error);
-
-    return `https://telegra.ph${json[0].src}`;
+    // What about no access token and no `short_name`? Already handled in
+    // constructor, I think that works.
   }
 
   /**
@@ -262,6 +213,7 @@ export class Telegraph {
    * @param payload Body of the API call.
    * @returns Result of the API call.
    */
+
   private async request<T, U = void>(method: Method, payload?: U): Promise<T> {
     const url = this.API_ROOT + method;
     const response = await fetch(url, {
@@ -286,8 +238,9 @@ export class Telegraph {
    * Creates a Telegraph account and returns the details of the new account.
    * Remember to store the `access_token`, of the account.
    *
-   * It also returns a URL to authorize a browser on telegra.ph and connect it to a Telegraph account.
-   * This URL is valid for only one use and for 5 minutes only.
+   * It also returns a URL to authorize a browser on telegra.ph and connect it
+   * to a Telegraph account. This URL is valid for only one use and for 5
+   * minutes only.
    *
    * Read more: https://telegra.ph/api#createAccount
    *
@@ -299,8 +252,10 @@ export class Telegraph {
    * });
    * ```
    *
-   * @param options Details of the account you want to create. Only `short_name` is required.
-   * @returns "On success, returns an Account object with the regular fields and an additional access_token field".
+   * @param options Details of the account you want to create. Only `short_name`
+   * is required.
+   * @returns "On success, returns an Account object with the regular fields and
+   * an additional access_token field".
    */
   async createAccount(
     options: types.CreateAccountOptions,
@@ -312,7 +267,8 @@ export class Telegraph {
   }
 
   /**
-   * Update information about the account. Pass only the parameters that you want to edit. At least one of them is required.
+   * Update information about the account. Pass only the parameters that you
+   * want to edit. At least one of them is required.
    *
    * Read more: https://telegra.ph/api#editAccountInfo
    *
@@ -324,8 +280,10 @@ export class Telegraph {
    * });
    * ```
    *
-   * @param options Information of the account you want to edit. At least one of them is required.
-   * @returns On success, returns an Account object with the `short_name`, `author_name` (if there is) and `author_url` (if there is) fields.
+   * @param options Information of the account you want to edit. At least one of
+   * them is required.
+   * @returns On success, returns an Account object with the `short_name`,
+   * `author_name` (if there is) and `author_url` (if there is) fields.
    */
   async editAccount(options: types.EditAccountOptions): Promise<types.Account> {
     return await this.request<types.Account, types.EditAccountOptions>(
@@ -337,8 +295,8 @@ export class Telegraph {
   /**
    * Use this method to get information about the account.
    *
-   * You can specify the list of account fields to return.
-   * Available fields are `short_name`, `author_name`, `author_url`, `auth_url` and `page_count`.
+   * You can specify the list of account fields to return. Available fields are
+   * `short_name`, `author_name`, `author_url`, `auth_url` and `page_count`.
    *
    * Read more: https://telegra.ph/api#getAccountInfo
    *
@@ -357,7 +315,8 @@ export class Telegraph {
    * ]);
    * ```
    *
-   * @param fields The List of account fields to return. Available fields: `short_name`, `author_name`, `author_url`, `auth_url` and `page_count`.
+   * @param fields The List of account fields to return. Available fields:
+   * `short_name`, `author_name`, `author_url`, `auth_url` and `page_count`.
    * @returns Account object with the requested fields on success.
    */
   async getAccount(
@@ -378,13 +337,13 @@ export class Telegraph {
   }
 
   /**
-   * Use this method to revoke `access_token` and generate a new one.
-   * For example, if the you would like to reset all connected sessions,
-   * or you have reasons to believe the token was compromised.
+   * Use this method to revoke `access_token` and generate a new one. For
+   * example, if the you would like to reset all connected sessions, or you have
+   * reasons to believe the token was compromised.
    *
-   * Passing the argument `true` or just leaving it empty,
-   * revokes the `access_token` and sets the new one to the connected account.
-   * And that `access_token` will be used when calling methods later on.
+   * Passing the argument `true` or just leaving it empty, revokes the
+   * `access_token` and sets the new one to the connected account. And that
+   * `access_token` will be used when calling methods later on.
    *
    * Read more: https://telegra.ph/api#revokeAccessToken
    *
@@ -392,8 +351,9 @@ export class Telegraph {
    * await tph.revokeAccessToken();
    * ```
    *
-   * By passing `false`, it only revokes the `access_token`.
-   * You have to store the returned `access_token`, if you want to do something with the account later.
+   * By passing `false`, it only revokes the `access_token`. You have to store
+   * the returned `access_token`, if you want to do something with the account
+   * later.
    *
    * ```ts
    * await tph.revokeAccessToken(false);
@@ -406,8 +366,10 @@ export class Telegraph {
    * tph.token = access_token;
    * ```
    *
-   * @param save Whether you wanna save the new `access_token` to the account or not. Defaults to `true`. Set to `false` if you don't want to update it.
-   * @returns On success, returns new `access_token` and `auth_url` for the account.
+   * @param save Whether you wanna save the new `access_token` to the account or
+   * not. Defaults to `true`. Set to `false` if you don't want to update it.
+   * @returns On success, returns new `access_token` and `auth_url` for the
+   * account.
    */
   async revokeAccessToken(
     save = true,
@@ -424,8 +386,8 @@ export class Telegraph {
    *
    * Read more: https://telegra.ph/api#createPage
    *
-   * `title` and `content` are required.
-   * `author_name`, `author_url`, `return_content` are optionals.
+   * `title` and `content` are required. `author_name`, `author_url`,
+   * `return_content` are optionals.
    *
    * ```ts
    * await tph.create({
@@ -439,14 +401,17 @@ export class Telegraph {
    * });
    * ```
    *
-   * Content can be **Markdown**, **HTML**, just **String** or **Array of strings** or **[Node](https://telegra.ph/api#Node)** or an Array of both strings and Nodes.
-   * To use HTML and Markdown you need to import 2 parser functions from this module.
+   * Content can be **Markdown**, **HTML**, just **String** or **Array of
+   * strings** or **[Node](https://telegra.ph/api#Node)** or an Array of both
+   * strings and Nodes. To use HTML and Markdown you need to import 2 parser
+   * functions from this module.
    *
    * ```ts
    * import { parseHtml, parseMarkdown } from "https://deno.land/x/telegraph/mod.ts";
    * ```
    *
-   * Here are basic examples for each type. See the README of the official Repository to find more of them.
+   * Here are basic examples for each type. See the README of the official
+   * Repository to find more of them.
    *
    * ```ts
    * const content = "With just a string";
@@ -459,13 +424,15 @@ export class Telegraph {
    * <p><b>Be bold</b></p>`);
    * ```
    *
-   * **Markdown**, `parseMarkdown(mdContent)` will parse the Markdown down to Node for the content.
+   * **Markdown**, `parseMarkdown(mdContent)` will parse the Markdown down to
+   * Node for the content.
    *
    * ```ts
    * const content = parseMarkdown(`## Heading 2\n\nThis is so **cool**!`);
    * ```
    *
-   * **Node**, bit complicated one to create (That's why MD and HTML methods exists), if there is a lot of formatting and all.
+   * **Node**, bit complicated one to create (That's why MD and HTML methods
+   * exists), if there is a lot of formatting and all.
    *
    * ```ts
    * const content = [
@@ -494,8 +461,10 @@ export class Telegraph {
    * ];
    * ```
    *
-   * @param options Options to create the page. Only `title` and `content` is required.
-   * @returns On success, returns a `Page` object with all the details of the page you just created.
+   * @param options Options to create the page. Only `title` and `content` is
+   * required.
+   * @returns On success, returns a `Page` object with all the details of the
+   * page you just created.
    */
   async create(options: types.CreatePageOptions): Promise<types.Page> {
     if (typeof options.content === "string") {
@@ -526,14 +495,17 @@ export class Telegraph {
    * });
    * ```
    *
-   * Content can be **Markdown**, **HTML**, just **String** or **Array of strings** or **[Node](https://telegra.ph/api#Node)** or an Array of both strings and Nodes.
-   * To use HTML and Markdown you need to import 2 parser functions from this module.
+   * Content can be **Markdown**, **HTML**, just **String** or **Array of
+   * strings** or **[Node](https://telegra.ph/api#Node)** or an Array of both
+   * strings and Nodes. To use HTML and Markdown you need to import 2 parser
+   * functions from this module.
    *
    * ```ts
    * import { parseHtml, parseMarkdown } from "https://deno.land/x/telegraph/mod.ts";
    * ```
    *
-   * Here are basic examples for each type. See the README of the official Repository to find more of them.
+   * Here are basic examples for each type. See the README of the official
+   * Repository to find more of them.
    *
    * ```ts
    * const content = "With just a string";
@@ -546,13 +518,15 @@ export class Telegraph {
    * <p><b>Be bold</b></p>`);
    * ```
    *
-   * **Markdown**, `parseMarkdown(mdContent)` will parse the Markdown down to Node for the content.
+   * **Markdown**, `parseMarkdown(mdContent)` will parse the Markdown down to
+   * Node for the content.
    *
    * ```ts
    * const content = parseMarkdown(`## Heading 2\n\nThis is so **cool**!`);
    * ```
    *
-   * **Node**, bit complicated one to create (That's why MD and HTML methods exists), if there is a lot of formatting and all.
+   * **Node**, bit complicated one to create (That's why MD and HTML methods
+   * exists), if there is a lot of formatting and all.
    *
    * ```ts
    * const content = [
@@ -581,10 +555,14 @@ export class Telegraph {
    * ];
    * ```
    *
-   * @param path Path to the post (page) you want to edit the title, properties, content. Paths are the string comes after "https://telegra.ph/".
+   * @param path Path to the post (page) you want to edit the title, properties,
+   * content. Paths are the string comes after "https://telegra.ph/".
    *
-   * For example, `Telegraph-is-cool-12-24` is the path. Original URL: `https://telegra.ph/Telegraph-is-cool-12-24`
-   * @param options The fields you want to edit, just like the options of Creating a post. But only `content` is required, all other fields are optional.
+   * For example, `Telegraph-is-cool-12-24` is the path. Original URL:
+   * `https://telegra.ph/Telegraph-is-cool-12-24`
+   * @param options The fields you want to edit, just like the options of
+   * Creating a post. But only `content` is required, all other fields are
+   * optional.
    * @returns
    */
   async edit(
@@ -623,9 +601,12 @@ export class Telegraph {
    * await tph.get("Telegraph-is-cool-12-24", true);
    * ```
    *
-   * @param path Path to the Telegraph page (in the format Title-12-31, i.e. everything that comes after `http://telegra.ph/`).
-   * @param returnContent If `true`, content field will be returned in `Page` object. Defaults to `false`.
-   * @returns On success, returns a `Page` object with the details of the requested page.
+   * @param path Path to the Telegraph page (in the format Title-12-31, i.e.
+   * everything that comes after `http://telegra.ph/`).
+   * @param returnContent If `true`, content field will be returned in `Page`
+   * object. Defaults to `false`.
+   * @returns On success, returns a `Page` object with the details of the
+   * requested page.
    */
   async get(path: string, returnContent = false): Promise<types.Page> {
     return await this.request<types.Page, types.GetPageOptions>("getPage", {
@@ -635,8 +616,8 @@ export class Telegraph {
   }
 
   /**
-   * Use this method to get a list of pages belonging to the account.
-   * Returns a PageList object, sorted by most recently created pages first.
+   * Use this method to get a list of pages belonging to the account. Returns a
+   * PageList object, sorted by most recently created pages first.
    *
    * Read more: https://telegra.ph/api#getPageList
    *
@@ -659,7 +640,8 @@ export class Telegraph {
    *
    * - `offset` - Sequential number of the first page to be returned.
    * - `limit` - Number of pages to be returned.
-   * @returns Returns a PageList object, sorted by most recently created pages first.
+   * @returns Returns a PageList object, sorted by most recently created pages
+   * first.
    */
   async getPages(
     options: types.GetPageListOptions = { limit: 50, offset: 0 },
@@ -693,10 +675,14 @@ export class Telegraph {
    * });
    * ```
    *
-   * @param path Path to the post (page) which you want to get the views. Paths are the string comes after "https://telegra.ph/".
+   * @param path Path to the post (page) which you want to get the views. Paths
+   * are the string comes after "https://telegra.ph/".
    *
-   * For example, `Telegraph-is-cool-12-24` is the path. Original URL: `https://telegra.ph/Telegraph-is-cool-12-24`
-   * @param options All are optionals. `hour` (Optional. 0 to 24), `day` (Required if `hour` is passed. 1 to 31), `month` (Required if `day` is passed. 1 to 12), and `year` (Required if `month` is passed. 2000 to 2100)
+   * For example, `Telegraph-is-cool-12-24` is the path. Original URL:
+   * `https://telegra.ph/Telegraph-is-cool-12-24`
+   * @param options All are optionals. `hour` (Optional. 0 to 24), `day`
+   * (Required if `hour` is passed. 1 to 31), `month` (Required if `day` is
+   * passed. 1 to 12), and `year` (Required if `month` is passed. 2000 to 2100)
    * @returns Number of views `{ "views": 0 }`
    * ```
    */
