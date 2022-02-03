@@ -1,8 +1,11 @@
 import { DOMParser, Element, marky, Parser } from "../deps.ts";
-import { NodeElement, Tag } from "./types.ts";
+import { Node, NodeElement, Tag } from "./types.ts";
+import { MdParsers, tgMdParsers } from "./parsers.ts";
 
 /**
- * `RegExp`s for detecting Telegram, Vimeo, Twitter and YouTube URLs and finds the main things that we need to make a Telegra.ph compatible source value for `<iframe>`s.
+ * `RegExp`s for detecting Telegram, Vimeo, Twitter and YouTube URLs and finds
+ * the main things that we need to make a Telegra.ph compatible source value for
+ * `<iframe>`s.
  *
  * Found from several sources on web, credits to them.
  */
@@ -17,105 +20,81 @@ const REGEX = {
     /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]+).*/,
 } as const;
 
-/**
- * Parses Markdown string to node content which can be used while creating or editing pages.
- *
- * Example usage:
- * ```ts
- * const content = parseMarkdown("**bold**");
- * // [ { tag: "p", children: [ { tag: "strong", children: ["bold"] } ] } ]
- * tph.create({
- *    content,
- *    title: "Telegraph.md",
- * });
- * ```
- * @param content Markdown content to parse.
- * @returns Node content.
- */
-export const parseMarkdown = (content: string, markyParsers?: Parser[]) => {
-  const md = marky(content, markyParsers).replace(
-    /\<del\>(.*)\<\/del\>/gim,
-    "<s>$1</s>",
-  );
-  return parseHtml(md);
-};
+type ParseMode = "TGMarkdown" | "Markdown" | "HTML";
 
 /**
- * Parses HTML to node content which can be used while creating or editing pages.
- * - `<h1>`, `<h2>` will be changed to `<h3>` and `<h4>` since Telegra.ph only supports `h3` and `h4`s as heading tags.
- * `<h5` and `<h6>` will also be changed to `<h3>` and `<h4>`.
- * - When using `<iframe>`s, you need to wrap them inside a `<figure>`.
- *
- * ***
- *
- * Example usage:
- * ```ts
- * const content = parseHtml("<b>Bold</b><br><i>Italic</i>");
- * // [
- * //   { tag: "b", children: [ "Bold" ] },
- * //   { tag: "br" },
- * //   { tag: "i", children: [ "Italic" ] }
- * // ]
- * tph.create({
- *    content,
- *    title: "Telegra.ph Deno API wrapper is cool!",
- * });
- * ```
- * @param content HTML content to parse.
- * @returns Node content.
+ * Parses the given HTML or markdown content and returns a Telegra.ph compatible
+ * `content` value. You have to provide a `parseMode` in order to parse the
+ * content properly. The value of `parseMode` can be either `"TGMarkdown"`,
+ * `"Markdown"` or `"HTML"`.
  */
-export const parseHtml = (content: string) => {
+export function parse(
+  content: string,
+  parseMode: ParseMode,
+  markyParsers: Parser[] = [],
+): string | Node[] {
+  switch (parseMode) {
+    case "TGMarkdown": {
+      const md = marky(content, tgMdParsers.concat(markyParsers));
+      return parseHtml(md);
+    }
+    case "Markdown": {
+      const md = marky(content, MdParsers.concat(markyParsers));
+      return parseHtml(md);
+    }
+    case "HTML": {
+      return parseHtml(`<p>${content}</p>`);
+    }
+  }
+}
+
+function parseHtml(content: string) {
   const body = new DOMParser().parseFromString(content, "text/html")!.body;
   const node = domToNode(body);
-  if (node) return typeof node === "string" ? node : node.children;
-};
+  if (typeof node === "string") return node;
+  else if (node.children) return node.children;
+  else return "";
+}
 
 /**
- * Modified, *internally* used `domToNode` function for parsing HTML DOM Element to node elements that can be used in your pages as `content`.
- * Helps to write HTML (and Markdown, which gets parsed to HTML using [marky](https://deno.land/x/marky@v1.1.6/mod.ts)) code and convert it to ready `content` for Telegra.ph.
+ * Modified, *internally* used `domToNode` function for parsing HTML DOM Element
+ * to node elements that can be used in your pages as `content`. Helps to write
+ * HTML (and Markdown, which gets parsed to HTML using
+ * [marky](https://deno.land/x/marky@v1.1.6/mod.ts)) code and convert it to
+ * ready `content` for Telegra.ph.
  *
- * Original version of this helper function can be found here, https://telegra.ph/api#Content-format
+ * Original version of this helper function can be found here,
+ * https://telegra.ph/api#Content-format
  *
  * ***
- * There might be more tags that should/can be detected and be changed into something that Telegra.ph supports.
- * But I haven't found them yet, since I don't work too much with HTML. But, if you find anything that can enchance this, please open a PR.
+ * There might be even more tags that should/can be detected and be changed into
+ * something that Telegra.ph supports. But I haven't found them yet, since I
+ * don't work too much with HTML. But, if you find anything that can enchance
+ * this, please open a PR.
  * @param el HTML Element to be parsed into an NodeElement.
  * @returns Parsed node element, ready to be used in your pages.
  */
-const domToNode = (el: Element) => {
-  if (el.nodeType === el.TEXT_NODE) return el.nodeValue;
+function domToNode(el: Element): NodeElement | string {
+  if (el.nodeType === el.TEXT_NODE) {
+    return el.nodeValue ? el.nodeValue : "";
+  }
 
   const tag = el.tagName.toLowerCase();
   const nodeElement: NodeElement = {
     tag: tag as Tag,
   };
 
-  switch (tag) {
-    case "h1":
-      nodeElement.tag = "h3";
-      break;
+  const replaceTags: Record<string, Tag> = {
+    h1: "h3",
+    h2: "h4",
+    h5: "h3",
+    h6: "h4",
+    del: "s",
+  };
 
-    case "h2":
-      nodeElement.tag = "h4";
-      break;
-
-    case "h5":
-      nodeElement.tag = "h3";
-      break;
-
-    case "h6":
-      nodeElement.tag = "h4";
-      break;
-
-    case "del":
-      nodeElement.tag = "s";
-      break;
-
-    case "code":
-      // Having a code block like `<pre><code>content here</code></pre>`, is not rendering as an actual "pre" code block.
-      // But, instead having just `<pre>content here</pre>` or a `<pre><pre>content here</pre></pre>` works fine.
-      if (el.parentElement?.tagName === "PRE") nodeElement.tag = "pre";
-      break;
+  if (tag in replaceTags) nodeElement.tag = replaceTags[tag];
+  if (tag === "code" && el.parentElement?.tagName === "PRE") {
+    nodeElement.tag = "pre";
   }
 
   if ("href" in el.attributes) nodeElement.attrs = { href: el.attributes.href };
@@ -155,6 +134,7 @@ const domToNode = (el: Element) => {
     nodeElement.attrs = { ...nodeElement.attrs, src };
   }
 
+  // Recursive domTonode for children.
   if (el.childNodes.length > 0) {
     nodeElement.children = [];
     for (let i = 0; i < el.childNodes.length; i++) {
@@ -163,5 +143,6 @@ const domToNode = (el: Element) => {
       if (node) nodeElement.children.push(node);
     }
   }
+
   return nodeElement;
-};
+}
