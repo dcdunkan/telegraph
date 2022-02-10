@@ -1,5 +1,4 @@
-// Available Types
-// https://telegra.ph/api#Available-types
+// Available Types https://telegra.ph/api#Available-types
 export interface Account {
   short_name: string;
   author_name: string;
