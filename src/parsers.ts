@@ -32,6 +32,10 @@ function matchAndReplace(
   return block;
 }
 
+// Converts single newlines to spaces.
+const lineBreakParser = (content: string) =>
+  content.replace(/(?!\n\n)(?<!\n)\n/g, " ");
+
 // Telegram Markdown V2 parsers.
 export const tgMdParsers: Parser[] = [
   {
@@ -138,6 +142,7 @@ export const MdParsers: Parser[] = [
       p.strikethrough,
       p.linkAndImage,
       p.paragraphBlock,
+      lineBreakParser,
     ],
   },
 ];

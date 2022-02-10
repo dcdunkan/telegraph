@@ -20,8 +20,6 @@ const REGEX = {
     /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]+).*/,
 } as const;
 
-type ParseMode = "TGMarkdown" | "Markdown" | "HTML";
-
 /**
  * Parses the given HTML or markdown content and returns a Telegra.ph compatible
  * `content` value. You have to provide a `parseMode` in order to parse the
@@ -30,16 +28,17 @@ type ParseMode = "TGMarkdown" | "Markdown" | "HTML";
  */
 export function parse(
   content: string,
-  parseMode: ParseMode,
+  parseMode: "TGMarkdown" | "Markdown" | "HTML",
   markyParsers: Parser[] = [],
 ): string | Node[] {
+  const parsers: Parser[] = [...markyParsers];
   switch (parseMode) {
     case "TGMarkdown": {
-      const md = marky(content, tgMdParsers.concat(markyParsers));
-      return parseHtml(md);
+      const tgMd = marky(content, parsers.concat(tgMdParsers));
+      return parseHtml(tgMd);
     }
     case "Markdown": {
-      const md = marky(content, MdParsers.concat(markyParsers));
+      const md = marky(content, parsers.concat(MdParsers));
       return parseHtml(md);
     }
     case "HTML": {
