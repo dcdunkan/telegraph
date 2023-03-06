@@ -26,6 +26,7 @@ const HTML_SANITIZER_OPTIONS: IOptions = {
     "iframe": ["src"],
   },
 };
+
 const IFRAME_SRC_REGEX: Record<string, RegExp> = {
   twitter:
     /(https?:\/\/)?(www.)?twitter.com\/([a-z,A-Z]*\/)*status\/([0-9])[?]?.*/,
@@ -36,8 +37,10 @@ const IFRAME_SRC_REGEX: Record<string, RegExp> = {
   youtube:
     /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]+).*/,
 };
+
 const PARSE_MODES = ["html", "markdown"];
 
+/** Parse modes supported by the library. */
 export type ParseMode = "HTML" | "Markdown";
 
 const DOM_PARSER = new DOMParser();
@@ -50,26 +53,41 @@ function transformToIframeURL(url: string) {
     if (!IFRAME_SRC_REGEX[site].test(url)) continue;
     return `/embed/${site}?url=${encodeURIComponent(url)}`;
   }
+  return url;
 }
 
+/**
+ * Parse Markdown or HTML to Telegraph compatible Node format to
+ * create or edit a Telegraph page.
+ *
+ * @param content Content to parse in HTML or Markdown format.
+ * @param parseMode Parse mode of the content.
+ *
+ * @return String or Node for creating pages in Telegraph.
+ */
 export function parse(content: string, parseMode: ParseMode) {
   const mode = parseMode.toLowerCase();
   if (!PARSE_MODES.includes(mode)) {
     throw new Error("Invalid parse mode: " + parseMode);
   }
-  const html = mode === "html" ? content : marked.parse(content);
+  const html = mode === "html" ? content.trim() : marked.parse(content.trim());
   const sanitized = sanitizeHtml(html, HTML_SANITIZER_OPTIONS);
   const dom = parseHtmlToDOM(sanitized);
   if (dom === null) throw new Error("Failed to parse HTML to DOM");
   const node = domToNode(dom.body);
   if (node === null) throw new Error("Empty node content");
-  return typeof node === "string" ? node : node.children;
+  if (typeof node === "string") return node;
+  if (node.children === undefined) throw new Error("Empty content");
+  return node.children;
 }
 
 // Transforms DOM to Telegraph compatible content format.
+// A modified version of https://telegra.ph/api#Content-format.
 function domToNode(element: Element) {
   if (element.nodeType == element.TEXT_NODE) {
-    return element.nodeValue;
+    return element.parentElement?.tagName === "P" && element.nodeValue
+      ? element.nodeValue.replace("\n", " ") // markdown issues?
+      : element.nodeValue;
   }
 
   const tag = element.tagName.toLowerCase() as SupportedTag;
@@ -91,7 +109,7 @@ function domToNode(element: Element) {
     nodeElement.children = [];
     for (const childElement of element.childNodes) {
       const childNode = domToNode(childElement as Element);
-      if (childNode) nodeElement.children.push(childNode);
+      if (childNode && childNode !== "\n") nodeElement.children.push(childNode);
     }
   }
 
