@@ -65,7 +65,7 @@ editor! Simply hover your mouse over the methods and properties to see their
 documentation.
 
 The default API root URL is `https://api.telegra.ph`. You can change it in the
-options if you want to (<https://telegra.ph> is blocked by some ISPs).
+options if you want to.
 
 ## Content Formatting
 
