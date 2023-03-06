@@ -24,6 +24,7 @@ const HTML_SANITIZER_OPTIONS: IOptions = {
     "a": ["href"],
     "img": ["src"],
     "iframe": ["src"],
+    "video": ["src"],
   },
 };
 

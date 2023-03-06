@@ -4,8 +4,9 @@ import type {
   AuthUrl,
   Node,
   Page,
+  PageCount,
   PageList,
-  PageViews,PageCount
+  PageViews,
 } from "./types.ts";
 
 const API_ROOT = "https://api.telegra.ph";
