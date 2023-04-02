@@ -45,7 +45,7 @@ console.log(account); // it has the access_token (keep it private)
 // Let's use the access_token:
 telegraph.token = account.token;
 
-const content = `
+const content = `\
 I created this page using **Deno** and [Telegraph](https://deno.land/x/telegraph)
 library. You can also create one with just few lines of code.
 
@@ -64,14 +64,14 @@ Try other methods as well. The official documentation is also available in your
 editor! Simply hover your mouse over the methods and properties to see their
 documentation.
 
-The default API root URL is `https://api.telegra.ph`. You can change it in the
-options if you want to.
+The default API root URL is **<https://api.telegra.ph>**. You can change it in
+the options if you want to.
 
 ## Content Formatting
 
-You can only create articles using the Node format, which can be hard to use.
-So, this library provides support for HTML and Markdown (uses default
-[marked](https://www.npmjs.com/package/marked) settings).
+With Telegraph API, you can only create articles using the Node format, which is
+hard to use. So, this library provides support for HTML and Markdown (uses
+default [marked](https://www.npmjs.com/package/marked) settings).
 
 ```ts
 import { parse } from "https://deno.land/x/telegraph/mod.ts";
@@ -87,11 +87,11 @@ content.
 
 #### "Can I use other Markdown specifications?"
 
-Yes, you can. Default configuration of [marked](https://npm.im/marked) is used
-for the markdown parsing. If you wish to use some other, you can just parse it
-to HTML first and then `parse` with HTML as parse mode.
+Yes, you can. Default configuration of **[marked](https://npm.im/marked)** is
+used for the markdown parsing. If you wish to use some other, you can just parse
+it to HTML first and then `parse` with HTML as parse mode.
 
-(uses https://deno.land/x/gfm as an example:)
+(uses <https://deno.land/x/gfm> as an example:)
 
 ```ts
 import { parse } from "https://deno.land/x/telegraph/mod.ts";
@@ -110,8 +110,9 @@ There is an undocumented API endpoint for uploading media files to Telegraph
 servers. A helper function for uploading local media files to this endpoint is
 exported from this library.
 
-> Note: As far as I know, this API only allows you to upload a limited set of
-> media types: gif, png, png, mp4, jpg, and jpeg of limited size, around 6 MB.
+> **Note**: As far as I know, this API only allows you to upload a limited set
+> of media types: gif, png, png, mp4, jpg, and jpeg of limited size, around 6
+> MB.
 
 ```ts
 import { upload } from "https://deno.land/x/telegraph/mod.ts";
@@ -136,7 +137,7 @@ API URL can also be changed for uploading files:
 await upload("file.ext", "https://graph.org/upload");
 ```
 
-It defaults to `https://telegra.ph/upload`.
+It defaults to <https://telegra.ph/upload>.
 
 > **Just don't misuse the free service.**
 
