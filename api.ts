@@ -24,6 +24,7 @@ export const ACCOUNT_FIELDS = [
   "auth_url",
   "page_count",
 ] as const;
+
 /** Account fields that can be requested through `getAccountInfo` method. */
 export type AccountFields = typeof ACCOUNT_FIELDS[number];
 
@@ -66,7 +67,7 @@ export class Telegraph {
     private options: Options = { apiRoot: API_ROOT },
   ) {}
 
-  private async request<T>(method: string, body?: T) {
+  async #request<T>(method: string, body?: T) {
     const url = `${this.options.apiRoot}/${method}`;
     let response: Response;
     try {
@@ -113,7 +114,7 @@ export class Telegraph {
      */
     author_url?: string;
   }): Promise<Account & AccessToken & AuthUrl> {
-    return this.request("createAccount", details);
+    return this.#request("createAccount", details);
   }
 
   /**
@@ -127,7 +128,7 @@ export class Telegraph {
   getAccount<K extends AccountFields>(
     fields?: K[],
   ): Promise<{ [key in K]: Required<Account & AuthUrl & PageCount>[key] }> {
-    return this.request("getAccountInfo", { fields: fields ?? ACCOUNT_FIELDS });
+    return this.#request("getAccountInfo", { fields: fields ?? ACCOUNT_FIELDS });
   }
 
   /**
@@ -150,7 +151,7 @@ export class Telegraph {
      */
     author_url?: string;
   }): Promise<Account> {
-    return this.request("editAccountInfo", details);
+    return this.#request("editAccountInfo", details);
   }
 
   /**
@@ -167,7 +168,7 @@ export class Telegraph {
     /** Whether to apply the new access token to the instance. */
     save: true,
   }): Promise<AccessToken & AuthUrl> {
-    const creds = await this.request("revokeAccessToken");
+    const creds = await this.#request("revokeAccessToken");
     if (creds && options.save) this.token = creds.access_token;
     return creds;
   }
@@ -196,7 +197,7 @@ export class Telegraph {
       return_content?: T;
     },
   ): Promise<Page<T>> {
-    return this.request("createPage", {
+    return this.#request("createPage", {
       ...options,
       content: typeof options.content === "string"
         ? [options.content]
@@ -230,7 +231,7 @@ export class Telegraph {
       return_content?: T;
     },
   ): Promise<Page<T>> {
-    return this.request("editPage", { path, ...options });
+    return this.#request("editPage", { path, ...options });
   }
 
   /**
@@ -245,7 +246,7 @@ export class Telegraph {
     /** If true, content field will be returned in Page object. Defaults to true. */
     return_content: true,
   }): Promise<Page<true>> {
-    return this.request("getPage", { path, ...options });
+    return this.#request("getPage", { path, ...options });
   }
 
   /**
@@ -261,7 +262,7 @@ export class Telegraph {
     /** Limits the number of pages to be retrieved. */
     limit?: number;
   }): Promise<PageList> {
-    return this.request("getPageList", options);
+    return this.#request("getPageList", options);
   }
 
   /**
@@ -293,7 +294,7 @@ export class Telegraph {
     /** If passed, the number of page views for the requested hour will be returned. */
     hour?: number;
   }): Promise<PageViews> {
-    return this.request("getViews", { path, ...options });
+    return this.#request("getViews", { path, ...options });
   }
 }
 
