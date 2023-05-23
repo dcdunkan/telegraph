@@ -128,7 +128,9 @@ export class Telegraph {
   getAccount<K extends AccountFields>(
     fields?: K[],
   ): Promise<{ [key in K]: Required<Account & AuthUrl & PageCount>[key] }> {
-    return this.#request("getAccountInfo", { fields: fields ?? ACCOUNT_FIELDS });
+    return this.#request("getAccountInfo", {
+      fields: fields ?? ACCOUNT_FIELDS,
+    });
   }
 
   /**
