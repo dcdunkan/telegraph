@@ -1,6 +1,9 @@
+export { marked } from "https://esm.sh/marked@4.2.12";
+export {
+  default as sanitizeHtml,
+  type IOptions,
+} from "https://esm.sh/sanitize-html@2.10.0";
 export {
   DOMParser,
-  Element,
-} from "https://deno.land/x/deno_dom@v0.1.32-alpha/deno-dom-wasm.ts";
-export { marky } from "https://deno.land/x/marky@v1.1.6/mod.ts";
-export type { Parser } from "https://deno.land/x/marky@v1.1.6/parsers.ts";
+  type Element,
+} from "https://deno.land/x/deno_dom@v0.1.36-alpha/deno-dom-wasm.ts";
