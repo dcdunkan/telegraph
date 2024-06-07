@@ -4,7 +4,7 @@ interface URLLike {
   url: string;
 }
 
-async function fetchFile(url: string | URL) {
+async function fetchFile(url: string | URL): Promise<Blob> {
   const response = await fetch(url);
   if (response.body == null) {
     throw new Error(`Download failed, no response body from '${url}'`);
@@ -12,7 +12,7 @@ async function fetchFile(url: string | URL) {
   return response.blob();
 }
 
-/** Types of file sources supported by {@linkcode upload} */
+/** Types of file sources supported by {@link upload} */
 export type FileSource =
   | string
   | Blob
@@ -51,7 +51,7 @@ async function toBlob(file: FileSource): Promise<Blob> {
  * servers. Supports files upto 5 or 6 MB (Undocumented).
  *
  * @param file File to upload. If a string is given, considers it as an HTTPS
- * URL. Otherwise takes any type of raw content of type {@linkcode FileSource}.
+ * URL. Otherwise takes any type of raw content of type {@link FileSource}.
  * @param apiUrl API url to use. Defaults to https://telegra.ph/upload.
  *
  * @returns URL of the uploaded file.

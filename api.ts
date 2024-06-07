@@ -58,7 +58,7 @@ export class Telegraph {
    *
    * @param errorHandler A function that handles potential errors
    */
-  catch(errorHandler: ErrorHandler) {
+  catch(errorHandler: ErrorHandler): void {
     this.errorHandler = errorHandler;
   }
 
@@ -78,7 +78,8 @@ export class Telegraph {
     this.options.token = token;
   }
 
-  async #request<T>(method: string, body?: T) {
+  // deno-lint-ignore no-explicit-any
+  async #request<T>(method: string, body?: T): Promise<any> {
     const url = `${this.options.apiRoot}/${method}`;
     let response: Response;
     try {
