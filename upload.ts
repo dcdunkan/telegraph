@@ -60,10 +60,15 @@ export async function upload(
   file: FileSource,
   apiUrl = API_URL,
 ): Promise<string> {
+  const { origin } = new URL(apiUrl);
   const body = new FormData();
   const blob = await toBlob(file);
   body.append("photo", new File([blob], "blob"));
-  const response = await fetch(apiUrl, { method: "POST", body });
+  const response = await fetch(apiUrl, {
+    method: "POST",
+    body,
+    headers: { "Access-Control-Allow-Origin": origin },
+  });
   if (!response.ok) {
     throw new Error(`File upload failed: ${response.statusText}`);
   }
@@ -74,5 +79,5 @@ export async function upload(
   ) {
     throw new Error(`File upload failed: ${result.error}`);
   }
-  return `${new URL(apiUrl).origin}${result[0].src}`;
+  return `${origin}${result[0].src}`;
 }
