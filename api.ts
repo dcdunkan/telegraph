@@ -69,6 +69,7 @@ export class Telegraph {
     options.apiRoot ??= API_ROOT;
   }
 
+  /** Access token of the instance */
   get token(): string | undefined {
     return this.options.token;
   }

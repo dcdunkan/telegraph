@@ -85,7 +85,7 @@ export function parse(content: string, parseMode: ParseMode) {
 }
 
 function markdownToHtml(content: string): string {
-  return marked.parse(content);
+  return marked.parse(content, { async: false }) as string;
 }
 
 // Transforms DOM to Telegraph compatible content format.
