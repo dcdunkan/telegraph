@@ -12,6 +12,8 @@ import type {
 const API_ROOT = "https://api.telegra.ph";
 
 interface Options {
+  /** Access token of the Telegraph account */
+  token?: string;
   /** Root URL of the API server. Defaults to https://telegra.ph/api. */
   apiRoot?: string;
 }
@@ -46,7 +48,7 @@ export class Telegraph {
    */
   public errorHandler: ErrorHandler = (err) => {
     console.error("No error handler was set!");
-    console.error("Set your own error handler with `t.catch((err) => ...)`");
+    console.error("Set your own error handler with `.catch((err) => ...)`");
     console.error(err);
     throw err;
   };
@@ -61,11 +63,19 @@ export class Telegraph {
   }
 
   constructor(
-    /** Access token of the Telegraph account */
-    public token?: string,
     /** Options for configuring the instance */
-    private options: Options = { apiRoot: API_ROOT },
-  ) {}
+    private options: Options = {},
+  ) {
+    options.apiRoot ??= API_ROOT;
+  }
+
+  get token(): string | undefined {
+    return this.options.token;
+  }
+
+  set token(token: string) {
+    this.options.token = token;
+  }
 
   async #request<T>(method: string, body?: T) {
     const url = `${this.options.apiRoot}/${method}`;
