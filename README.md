@@ -1,627 +1,163 @@
-# [Telegra.ph](https://telegra.ph) API wrapper for Deno [🦕](https://deno.land)
+# Telegraph
 
-This is a tiny Telegra.ph API wrapper for [Deno](https://deno.land) written in
-[TypeScript](https://typescriptlang.org). All methods as listed
-[here](https://telegra.ph/api#Available-methods) are available. See
-[Usage](#usage) for usage examples for each methods.
+Telegraph API wrapper with additional support for uploading media and
+HTML/Markdown content formatting.
 
-See the [Deno module here](https://deno.land/x/telegraph).
+#### What is Telegraph?
 
-### Table of Contents
+> Telegra.ph is a minimalist publishing tool that allows you to create richly
+> formatted posts and push them to the Web in just a click. Telegraph posts also
+> get beautiful [Instant View](https://telegram.org/blog/instant-view) pages on
+> [Telegram](https://telegram.org).
+>
+> _from official API documentation._
 
-- [What is Telegra.ph?](#what-is-telegraph)
-- [Usage](#usage)
-- [Upload](#upload)
-- [Content Formatting](#content-formatting)
+It is highly recommended to read the official documentation by Telegram Team.
 
----
+- [Telegraph API Documentation](https://telegra.ph/api)
+- [API Reference](https://jsr.io/@dcdunkan/telegraph/doc)
 
-## What is Telegra.ph?
-
-**Telegra.ph** is a minimalist publishing tool that allows you to create richly
-formatted posts and push them to the Web in just a click. Telegraph posts also
-get beautiful [Instant View](https://telegram.org/blog/instant-view) pages on
-[Telegram](https://telegram.org).
-
-**It is recommended to read the official [Telegra.ph](https://telegra.ph) API
-docs** @<https://telegra.ph/api>
-
-This module contains all methods in the official Telegra.ph API and a unofficial
-Telegra.ph file upload module (Only `.jpg`, `.jpeg`, `.png`, `.gif` and `.mp4`
-files). See example usage.
-
----
-
-## Usage
-
-Import to your project file and connect or create a Telegraph account:
+Import from the module:
 
 ```ts
-// Import Telegraph class to your project.
-import { Telegraph } from "https://deno.land/x/telegraph/mod.ts";
-
-// Connect to an account.
-const tphOldAccount = new Telegraph({
-  access_token: "<your account access token>",
-});
-
-// Oh, don't have an access token? Create an account and use it.
-// This will create an account with the given details.
-const tphNew = new Telegraph({
-  short_name: "Deno", // Short Name is required.
-  author_name: "Deno.land", // Optional parameter.
-  author_url: "https://deno.land/", // Optional parameter.
-});
-
-// You want to use an already existing account with an access token and edit some of the details?
-const tphUpdatedOld = new Telegraph({
-  access_token: "<the account access token>",
-  short_name: "Ryan Dahl", // A little change. (Optional)
-  author_url: "https://github.com/ry", // Change in URL (Optional)
-});
+import { Telegraph } from "jsr:@dcdunkan/telegraph";
 ```
 
-Now you can use any methods. See the examples for each methods:
+## Example Usage
 
-- [`createAccount`](#createAccount)
-- [`editAccount`](#editAccount)
-- [`revokeAccessToken`](#revokeAccessToken)
-- [`getAccount`](#getAccount)
-- [`create`](#create)
-- [`edit`](#edit)
-- [`get`](#get)
-- [`getPages`](#getPages)
-- [`getPageViews`](#getPageViews)
-
-<h3 id="createAccount">Account > <a href="https://telegra.ph/api#createAccount"><code>createAccount</code></a></h3>
-
-Creates a new Telegraph account, and returns the newly created account's details
-including `auth_url` and `access_token`.
-
-Read more: <https://telegra.ph/api#createAccount>
-
-<small>Usage:</small>
+Here is a small demonstration of how you can create an account and create a page
+using the Markdown format.
 
 ```ts
-tph.createAccount({
-  short_name: "Sandbox", // Required
-  author_name: "Anonymous", // Optional
-  author_url: "", // Optional
-});
-```
+import { parse, Telegraph } from "jsr:@dcdunkan/telegraph";
 
-<small>Outputs:</small>
-
-```json
-{
-  "short_name": "Sandbox",
-  "author_name": "Anonymous",
-  "author_url": "",
-  "access_token": "xxxxxxxx",
-  "auth_url": "https://edit.telegra.ph/auth/xxxxxxx"
-}
-```
-
-<h3 id="editAccount">Account > <a href="https://telegra.ph/api#editAccountInfo"><code>editAccount</code></a></h3>
-
-Edits the details of the connected Telegraph account, and returns the edited
-account details. Does **not** includes `access_token` or `auth_url`. Requires
-atleast one of the parameters.
-
-Read more: <https://telegra.ph/api#editAccountInfo>
-
-<small>Usage:</small>
-
-```ts
-tph.editAccount({
-  short_name: "BoxSand",
-  author_name: "Nonymous",
-  author_url: "https://minecraft.net",
-});
-```
-
-<small>Outputs:</small>
-
-```json
-{
-  "short_name": "BoxSand",
-  "author_name": "Nonymous",
-  "author_url": "https://minecraft.net/"
-}
-```
-
-<h3 id="revokeAccessToken">Account > <a href="https://telegra.ph/api#revokeAccessToken"><code>revokeAccessToken</code></a></h3>
-
-Revokes `access_token` of the connected Telegraph account, and returns the new
-`access_token` and `auth_url`.
-
-Read more: <https://telegra.ph/api#revokeAccessToken>
-
-Takes in one optional parameter,
-
-- **`save`**
-  - _Type_: `boolean`.
-  - _Defaults to_ `true`.
-  - If `true`, the new `access_token` will be set to the connected account.
-
-<small>Usage:</small>
-
-```ts
-// Revokes the `access_token` and sets the
-// new one to the connected account.
-tph.revokeAccessToken();
-// Only revokes the `access_token`.
-// @param save - boolean. Defaults to true.
-tph.revokeAccessToken(false);
-```
-
-<small>Outputs:</small>
-
-```json
-{
-  "access_token": "xxxxxxxx",
-  "auth_url": "https://edit.telegra.ph/auth/xxxxxxx"
-}
-```
-
-<h3 id="getAccount">Account > <a href="https://telegra.ph/api#getAccountInfo"><code>getAccount</code></a></h3>
-
-Returns the account details.
-
-Read more: <https://telegra.ph/api#getAccountInfo>
-
-Parameter:
-
-- **`fields`**: Fields to return.
-  - _Type_:
-    `("short_name" | "author_name" | "author_url" | "auth_url" | "page_count")[]`.
-  - _Defaults to_
-    `[ "short_name", "author_name", "author_url", "auth_url", "page_count" ]`.
-
-<small>Usage:</small>
-
-```ts
-// Returns all.
-tph.getAccount();
-// Returns specified.
-tph.getAccount(["author_url"]); // --> { author_url: "https://minecraft.net/" }
-tph.getAccount(["author_name", "author_url"]); // --> { author_url: "https://minecraft.net/", author_name: "Nonymous" }
-tph.getAccount(["page_count"]);
-```
-
-<small>Outputs (Or only specified fields):</small>
-
-```json
-{
-  "short_name": "BoxSand",
-  "author_name": "Nonymous",
-  "author_url": "https://minecraft.net/"
-}
-```
-
----
-
-<h3 id="create">Page > <a href="https://telegra.ph/api#createPage"><code>create</code></a></h3>
-
-Creates a new Telegraph Page (Post), and returns the details of the created
-page.
-
-Read more: <https://telegra.ph/api#createPage>
-
-In parameter `options`, the property `content` can be a `string` or `string[]`
-or HTML or Markdown or an array of [`Node`](https://telegra.ph/api#Node).
-
-See [Content Formatting](#content-formatting) for more.
-
-Example for content:
-
-```ts
-"Telegraph is cool!" // Just string
-["Foo", "Bar"]; // Array of strings.
-```
-
-Passing `Markdown` as content:
-
-```ts
-const content = parseMarkdown(
-  "## Jurassic Deno\n\n" +
-    `![image](${await Telegraph.upload("jurassicDeno.jpg")})`,
-)!;
-```
-
-Or the same thing by using `HTML` as content:
-
-```ts
-const content = parseHtml(
-  "<h3>Jurassic Deno</h3><br>" +
-    `<img src="${await Telegraph.upload("jurassicDeno.jpg")}">`,
-)!;
-```
-
-Passing [`Node`](https://telegra.ph/api#Node) as content:
-
-```ts
-[
+const telegraph = new Telegraph(
   {
-    tag: "a", // Tag.
-    attrs: {
-      href: "https://github.com", // Attributes supports `href` and `src`.
-    },
-    children: ["GitHub"],
+    token: "", // pass in a token if you have one
+    apiRoot: "https://api.graph.org", // change the api root if you need to
   },
-  {
-    tag: "br",
-  },
-  // A paragraph
-  {
-    tag: "p",
-    children: [
-      "GitHub is where over 73 million developers shape the future of software, together.",
-    ],
-  },
-  // An image
-  {
-    tag: "img",
-    attrs: { // Attributes supports `href` and `src`.
-      src:
-        "https://github.githubassets.com/images/modules/site/social-cards/github-social.png",
-    },
-  },
-  // A code block.
-  {
-    tag: "pre",
-    children: [
-      `const tph = new Telegraph({
-  accessToken: ""
-});
-
-tph.getAccount();`,
-    ],
-  },
-];
-```
-
-<small>Usage:</small>
-
-```ts
-tph.create({
-  title: "Telegraph is cool!", // Required. 1 to 256 characters.
-  content: "Telegraph is cool!", // Required. Upto 64KB.
-  author_name: "Telegram", // Optional. 0 to 128 characters.
-  author_url: "https://telegram.org", // Optional. 0 to 512 characters.
-  return_content: true, // Optional. Defaults to `false`.
-});
-```
-
-<small>Outputs:</small>
-
-```json
-{
-  "path": "Telegraph-is-cool-12-24",
-  "url": "https://telegra.ph/Telegraph-is-cool-12-24",
-  "title": "Telegraph is cool!",
-  "description": "",
-  "author_name": "Telegram",
-  "author_url": "https://telegram.org/",
-  "content": ["Telegraph is cool!"],
-  "views": 0,
-  "can_edit": true
-}
-```
-
-<h3 id="edit">Page > <a href="https://telegra.ph/api#editPage"><code>edit</code></a></h3>
-
-Edits a Telegraph page (post), and on success, returns the edited page details.
-
-See [Content Formatting](#content-formatting) to know more about the values can
-be given to `content` parameter.
-
-Read more: <https://telegra.ph/api#editPage>
-
-<small>Usage:</small>
-
-```ts
-tph.edit("Telegraph-is-cool-12-24", {
-  content: "Telegraph is simple!", // Required.
-  title: "Telegraph is simple, but cool!", // Optional.
-  author_name: "Telegram Team", // Optional.
-  author_url: "https://telegram.org/", // Optional.
-  return_content: false, // Optional.
-});
-```
-
-<small>Outputs:</small>
-
-```json
-{
-  "path": "Telegraph-is-cool-12-24",
-  "url": "https://telegra.ph/Telegraph-is-cool-12-24",
-  "title": "Telegraph is simple, but cool!",
-  "description": "",
-  "author_name": "Telegram Team",
-  "author_url": "https://telegram.org/",
-  "views": 0,
-  "can_edit": true
-}
-```
-
-<h3 id="get">Page > <a href="https://telegra.ph/api#getPage"><code>get</code></a></h3>
-
-Returns the details of a Telegraph page (post).
-
-Read more: <https://telegra.ph/api#getPage>
-
-Parameters
-
-- `path` (_`string`_): Path of the page.
-- `returnContent` (_`boolean`_): Optional. If `true`, the page content will also
-  be returned. Defaults to `false`.
-
-<small>Usage:</small>
-
-```ts
-tph.get("Telegraph-is-cool-12-24");
-```
-
-<small>Outputs:</small>
-
-```json
-{
-  "path": "Telegraph-is-cool-12-24",
-  "url": "https://telegra.ph/Telegraph-is-cool-12-24",
-  "title": "Telegraph is simple, but cool!",
-  "description": "",
-  "author_name": "Telegram Team",
-  "author_url": "https://telegram.org/",
-  "views": 0
-}
-```
-
-<h3 id="getPages">Page > <a href="https://telegra.ph/api#getPageList"><code>getPages</code></a></h3>
-
-Returns a list of pages belonging to the connected Telegraph account.
-
-Read more: <https://telegra.ph/api#getPageList>
-
-<small>Usage:</small>
-
-```ts
-tph.getPages(); // -> Gets all pages belonging to the connected account.
-// Or, if you want some of them,
-tph.getPages({
-  offset: 1, // Optional. Sequential number of the first page to be returned
-  limit: 2, // Optional. Number of pages to be returned.
-});
-// ^ This will return you the details of 2nd and 3rd last created pages.
-```
-
-<small>Outputs:</small>
-
-```json
-{
-  "total_count": 14,
-  "pages": [
-    {
-      "path": "GitHub-12-24-7",
-      "url": "https://telegra.ph/GitHub-12-24-7",
-      "title": "GitHub",
-      "description": "GitHub is where over 73 million developers shape the future of software, together.\nconst tph = new T...",
-      "author_name": "GitHub",
-      "author_url": "https://github.com/",
-      "views": 0,
-      "can_edit": true
-    },
-    {
-      "path": "Telegraph-is-cool-12-24",
-      "url": "https://telegra.ph/Telegraph-is-cool-12-24",
-      "title": "Telegraph is simple, but cool!",
-      "description": "",
-      "author_name": "Telegram Team",
-      "author_url": "https://telegram.org/",
-      "views": 0,
-      "can_edit": true
-    }
-  ]
-}
-```
-
-<h3 id="getPageViews">Page > <a href="https://telegra.ph/api#getViews"><code>getPageViews</code></a></h3>
-
-Returns the number of views of the specified page. You can pass in some
-**optional** date options to get the views of that time.
-
-Read more: <https://telegra.ph/api#getViews>
-
-<small>Usage:</small>
-
-```ts
-tph.getPageViews("Telegraph-is-cool-12-24"); // -> { views: 0 }
-// Maybe only the views of the year 2021?
-tph.getPageViews({
-  year: 2021,
-});
-// Just views of 3PM of December 24th of year 2021.
-tph.getPageViews({
-  hour: 15, // Optional. 0 to 24.
-  day: 24, // Required if `hour` is passed. 1 to 31.
-  month: 12, // Required if `day` is passed. 1 to 12.
-  year: 2021, // Required if `month` is passed. 2000 to 2100.
-});
-```
-
-<small>Outputs:</small>
-
-```json
-{ "views": 0 }
-```
-
----
-
-## Upload
-
-This is not a part of the official [Telegra.ph API](https://telegra.ph/api).
-This function helps you to upload `.jpg`, `.jpeg`, `.png`, `.gif` and `.mp4`
-files upto ~6MB (I think so) to [Telegra.ph](https://telegra.ph).
-
-```ts
-import { parseMarkdown, Telegraph } from "https://deno.land/x/telegraph/mod.ts";
-// Local File
-const localFile = await Telegraph.upload("video.mp4");
-// From URL, you actually don't have to do this, you can pass this URL as src if you want to.
-// But, it might become useful for temporary links.
-const url = await Telegraph.upload(
-  "https://file-examples-com.github.io/uploads/2017/04/file_example_MP4_640_3MG.mp4",
 );
-// Or URL | Blob | Uint8Array | BufferSource?
 
-// Use while creating a page.
-const tph = new Telegraph({
-  access_token: "<your access token>",
+// If you don't already have an access token, create one!
+const account = await telegraph.createAccount({ short_name: "John" });
+// Assign the access token to the instance.
+telegraph.token = account.access_token;
+
+const content = `\
+I created this page using and [Telegraph](https://github.com/dcdunkan/telegraph)
+library. You can also create one with just a few lines of code.
+
+See the [GitHub Repository](https://github.com/dcdunkan/telegraph) for more.`;
+
+// Now that you have set a token, let's create a page.
+const page = await telegraph.create({
+  title: "My Telegraph Post",
+  content: parse(content, "Markdown"),
 });
 
-// What about markdown?
-// https://telegra.ph/Jurassic-Deno-01-10
-const content = parseMarkdown(
-  "Jurassic Deno\n\n" +
-    `![image](${await Telegraph.upload("jurassicDeno.jpg")})`,
-)!;
-
-await tph
-  .create({
-    title: "Jurassic Deno",
-    content,
-  })
-  .then((page) => console.log(page.url));
-
-// Or the same exact thing in Node.
-// https://telegra.ph/Jurassic-Deno-12-25
-await tph.create({
-  title: "Jurassic Deno",
-  content: [
-    "Jurassic Deno:",
-    {
-      tag: "img",
-      attrs: {
-        src: await Telegraph.upload("jurassicDeno.jpg"),
-      },
-    },
-  ],
-});
-
-// https://telegra.ph/Denoland-12-25
-await tph.create({
-  title: "Deno.land",
-  content: [
-    // Local file
-    {
-      tag: "img",
-      attrs: {
-        src: await Telegraph.upload("jurassicDeno.jpg"),
-      },
-    },
-    // You actually don't have to do this.
-    // You can just give that URL as value of src.
-    {
-      tag: "img",
-      attrs: {
-        src: await Telegraph.upload("https://deno.land/images/deno_logo.png"),
-      },
-    },
-    {
-      tag: "img",
-      attrs: {
-        src: await Telegraph.upload(
-          "https://github.com/denolib/animated-deno-logo/raw/master/deno-rect-24fps.gif",
-        ),
-      },
-    },
-    "Example video:",
-    {
-      tag: "video",
-      attrs: {
-        src: await Telegraph.upload(
-          "https://file-examples-com.github.io/uploads/2017/04/file_example_MP4_640_3MG.mp4",
-        ),
-      },
-    },
-  ],
-});
+console.log(page); // logs information about the page we just created.
 ```
 
----
+Try other methods as well. The official documentation is also available in your
+editor! Simply hover your mouse over the methods and properties to see their
+documentation.
+
+The default API root URL is **<https://api.telegra.ph>**. You can change it in
+the options if you want to.
 
 ## Content Formatting
 
-Content can be **Markdown**, **HTML**, or just **String** or **Array of
-strings** or **[Node](https://telegra.ph/api#Node)** or an Array of both strings
-and Nodes. To use HTML and Markdown you need to import two parser functions from
-the module.
+With Telegraph API, you can only create articles using the Node format, which is
+relatively hard to use and work on compared to plain text formats. This library
+provides helpers functions to deal with this. HTML and Markdown are supported
+out-of-the-box using the `parse` method.
 
 ```ts
-import { parseHtml, parseMarkdown } from "https://deno.land/x/telegraph/mod.ts";
+import { parse } from "jsr:@dcdunkan/telegraph";
+
+const markdown = parse(`**Something in Markdown**`, "Markdown");
+const html = parse(`<h1>Some heading in HTML</h1>`, "HTML");
 ```
 
-Here are basic examples for each type. See the README of the official Repository
-to find more of them.
+> [!NOTE]
+>
+> - Markdown parsing uses the default configuration of
+>   [marked](https://github.com/markedjs/marked).
+> - HTML is using [deno-dom](https://github.com/b-fuze/deno-dom)
+>
+> Markdown is first transformed to HTML and parsed to Node format.
+
+The returned array of `Node` the `parse` function can then be used to create
+content.
+
+#### "Can I use other Markdown specifications?"
+
+Yes, you can. Default configuration of **[marked](https://npm.im/marked)** is
+used for the markdown parsing. If you wish to use some other, you can just parse
+it to HTML first and then `parse` with HTML as parse mode.
+
+(uses <https://jsr.io/@deno/gfm> as an example:)
 
 ```ts
-const content = "With just a string";
-const content = ["Array of strings.", " I am number one."];
+import { parse } from "jsr:@dcdunkan/telegraph";
+import { render } from "jsr:@deno/gfm";
+
+const html = render("Some GFM markdown");
+const content = parse(html); // tada :D
+// use `content` for creating pages.
 ```
 
-**HTML**, `parseHtml(htmlContent)` will convert the HTML string to Node.
+## Upload Media Files
+
+There is an undocumented API endpoint for uploading media files to Telegraph
+servers. A helper function for uploading local media files to this endpoint is
+also included in this library.
+
+> **Note**: As far as I know, this API only allows you to upload a limited set
+> of media types: gif, png, png, mp4, jpg, and jpeg of limited size, around 6
+> MB. **Do not ask questions regarding these, as I do not anything more**.
 
 ```ts
-// Import the HTML parser.
-import { parseHtml } from "https://deno.land/x/telegraph/mod.ts";
-const content = parseHtml(`<h1>Pure HTML, boys</h1><br>
-<p><b>Be bold</b></p>`);
+import { upload } from "jsr:@dcdunkan/telegraph";
+
+const file = await Deno.readFile("./image.png");
+await upload(file); // returns url of the uploaded file
+
+// The following also works:
+await upload("https://some.temporary-link-servi.ce/1234.gif");
+await upload(new URL("..."));
+await upload({ url: "...", otherProps: {} });
+
+const response = await fetch("file:///home/user/file.png");
+await upload(response); // Response
+await upload(await response.blob()); // Blob
+await upload(await response.bytes()); // Uint8Array
+
+const file = await Deno.open("./video.gif");
+await upload(file.readable); // ReadableStream<Uint8Array>
+await upload(file.readable[Symbol.asyncIterator]()); // AsyncIterable<Uint8Array>, also sync ones!
 ```
 
-**Markdown**, `parseMarkdown(mdContent)` will parse the Markdown down to Node
-for the content.
+API URL can also be changed for uploading files:
 
 ```ts
-// Import the markdown parser.
-import { parseMarkdown } from "https://deno.land/x/telegraph/mod.ts";
-const content = parseMarkdown(`## Heading 2\n\nThis is so **cool**!`);
+await upload(data, "https://graph.org/upload");
 ```
 
-**Node**, a bit complicated one to create (That's why MD and HTML methods
-exists), if there is a lot of formatting and all. And you have to do this in
+It defaults to <https://telegra.ph/upload>.
 
-```ts
-const content = [
-  {
-    tag: "a", // Specifies the tag.
-    attrs: {
-      href: "https://github.com", // Attributes supports `href` and `src`.
-    },
-    children: ["GitHub"], // Children can be another Node, parsed HTML, parsed MD, strings.
-  },
-  { tag: "br" },
-  {
-    tag: "p", // Paragraph
-    children: [
-      "GitHub is where over 73 million developers shape the future of software, together.",
-    ],
-  },
-  {
-    tag: "img", // Image
-    attrs: { // Attributes supports `href` and `src`.
-      src:
-        "https://github.githubassets.com/images/modules/site/social-cards/github-social.png",
-    },
-  },
-];
-```
+> **Just don't misuse the free service.**
+
+#### "Why can't I just pass in the local filepath?"
+
+For the ease of shipping for multiple runtimes. You can always have local files
+uploaded by opening them by yourselves and passing the stream/content to the
+upload helper. You can even `fetch` using `file:///` protocol and pass the
+response to get the file uploaded.
 
 ---
 
-If you are having issues with this library, or if you like to suggest something
-that can make this library better, please open a
-[issue here](https://github.com/dcdunkan/telegraph/issues). Or if you'd like to
-contribute, please open a pull request.
+If you are having issues with the library, you can report it by
+[opening an issue](https://github.com/dcdunkan/telegraph/issues).
 
-**[MIT License](./LICENSE). Copyright (c) 2022
-[dcdunkan](https://github.com/dcdunkan)**.
+[Licensed under MIT](./LICENSE)

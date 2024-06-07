@@ -1,6 +1,7 @@
+export { marked } from "npm:marked@12.0.2";
+/// <reference types="npm:@types/sanitize-html" />
 export {
-  DOMParser,
-  Element,
-} from "https://deno.land/x/deno_dom@v0.1.32-alpha/deno-dom-wasm.ts";
-export { marky } from "https://deno.land/x/marky@v1.1.6/mod.ts";
-export type { Parser } from "https://deno.land/x/marky@v1.1.6/parsers.ts";
+  default as sanitizeHtml,
+  type IOptions,
+} from "npm:sanitize-html@2.13.0";
+export { DOMParser, type Element } from "jsr:@b-fuze/deno-dom@0.1.47/wasm";

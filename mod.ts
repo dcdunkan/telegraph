@@ -1,4 +1,4 @@
-export * from "./src/telegraph.ts";
-export * from "./src/parse.ts";
-export * from "./src/types.ts";
-export { upload } from "./src/upload.ts";
+export { type ErrorHandler, Telegraph } from "./api.ts";
+export { parse, type ParseMode } from "./content.ts";
+export { type FileSource, upload } from "./upload.ts";
+export * from "./types.ts";
