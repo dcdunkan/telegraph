@@ -103,14 +103,18 @@ function domToNode(element: Element) {
   if (tag === "code" && element.parentElement?.tagName === "PRE") {
     nodeElement.tag = "pre"; // otherwise it won't render properly.
   }
+
   const href = element.attributes.getNamedItem("href");
-  const src = element.attributes.getNamedItem("src");
-  if (href) {
+  if (href != null) {
     nodeElement.attrs = { href: href.value };
-  } else if (src) {
-    nodeElement.attrs = {
-      src: tag === "iframe" ? transformToIframeURL(src.value) : src.value,
-    };
+  }
+  // unsure if they can be applied together
+  const src = element.attributes.getNamedItem("src");
+  if (src != null) {
+    nodeElement.attrs ??= {};
+    nodeElement.attrs.src = tag === "iframe"
+      ? transformToIframeURL(src.value)
+      : src.value;
   }
 
   if (element.childNodes.length) {
