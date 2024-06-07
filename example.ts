@@ -6,7 +6,7 @@ const SANDBOX_TOKEN =
   "d3b25feccb89e508a9114afb82aa421fe2a9712b963b387cc5ad71e58722";
 
 const t = new Telegraph(
-  SANDBOX_TOKEN,
+  { token: SANDBOX_TOKEN },
   // telegra.ph is blocked by ISP for some reason.
   // { apiRoot: "https://api.graph.org" },
 );
