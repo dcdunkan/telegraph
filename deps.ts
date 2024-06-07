@@ -1,4 +1,4 @@
-export { marked } from "https://esm.sh/marked@12.0.2";
+export { marked } from "npm:marked@12.0.2";
 export {
   default as sanitizeHtml,
   type IOptions,
