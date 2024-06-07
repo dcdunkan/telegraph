@@ -45,6 +45,7 @@ const PARSE_MODES = ["html", "markdown"];
 export type ParseMode = "HTML" | "Markdown";
 
 const DOM_PARSER = new DOMParser();
+
 function parseHtmlToDOM(html: string) {
   return DOM_PARSER.parseFromString(html, "text/html");
 }
@@ -71,7 +72,8 @@ export function parse(content: string, parseMode: ParseMode) {
   if (!PARSE_MODES.includes(mode)) {
     throw new Error("Invalid parse mode: " + parseMode);
   }
-  const html = mode === "html" ? content.trim() : marked.parse(content.trim());
+  content = content.trim();
+  const html = mode === "html" ? content : markdownToHtml(content);
   const sanitized = sanitizeHtml(html, HTML_SANITIZER_OPTIONS);
   const dom = parseHtmlToDOM(sanitized);
   if (dom === null) throw new Error("Failed to parse HTML to DOM");
@@ -80,6 +82,10 @@ export function parse(content: string, parseMode: ParseMode) {
   if (typeof node === "string") return node;
   if (node.children === undefined) throw new Error("Empty content");
   return node.children;
+}
+
+function markdownToHtml(content: string): string {
+  return marked.parse(content);
 }
 
 // Transforms DOM to Telegraph compatible content format.
