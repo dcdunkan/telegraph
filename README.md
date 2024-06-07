@@ -118,7 +118,7 @@ also included in this library.
 
 > **Note**: As far as I know, this API only allows you to upload a limited set
 > of media types: gif, png, png, mp4, jpg, and jpeg of limited size, around 6
-> MB. **Do not ask questions regarding these, as I do not anything more**.
+> MB. **Do not ask questions regarding these, as I do not know anything more**.
 
 ```ts
 import { upload } from "jsr:@dcdunkan/telegraph";
