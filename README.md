@@ -1,5 +1,8 @@
 # Telegraph
 
+[![JSR Version](https://jsr.io/badges/@dcdunkan/telegraph)](https://jsr.io/@dcdunkan/telegraph)
+[![JSR Score](https://jsr.io/badges/@dcdunkan/telegraph/score)](https://jsr.io/@dcdunkan/telegraph/score)
+
 Telegraph API wrapper with additional support for uploading media and
 HTML/Markdown content formatting.
 
