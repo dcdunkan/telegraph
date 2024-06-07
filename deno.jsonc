@@ -4,7 +4,7 @@
   "exports": "./mod.ts",
   "lock": false,
   "tasks": {
-    "check": "deno cache --check=all mod.ts",
+    "check": "deno check --all mod.ts",
     "dev": "deno fmt && deno lint && deno task check"
   }
 }
