@@ -2,6 +2,7 @@
 import { Telegraph } from "./mod.ts";
 
 // Token included in the sample request sections of https://telegra.ph/api.
+// deno-lint-ignore no-unused-vars
 const SANDBOX_TOKEN =
   "d3b25feccb89e508a9114afb82aa421fe2a9712b963b387cc5ad71e58722";
 

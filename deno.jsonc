@@ -1,15 +1,10 @@
 {
+  "name": "@dcdunkan/telegraph",
+  "version": "0.0.0",
+  "exports": "./mod.ts",
   "lock": false,
   "tasks": {
     "check": "deno cache --check=all mod.ts",
-    "backport": "deno run --no-prompt --allow-read=. --allow-write=. https://deno.land/x/deno2node@v1.8.1/src/cli.ts tsconfig.json",
-    "dev": "deno fmt && deno lint && deno task test && deno task check",
-    "test": "deno test"
-  },
-  "fmt": {
-    "exclude": ["./node_modules/", "./out/", "./package-lock.json"]
-  },
-  "lint": {
-    "exclude": ["./node_modules/", "./out/", "./package-lock.json"]
+    "dev": "deno fmt && deno lint && deno task check"
   }
 }

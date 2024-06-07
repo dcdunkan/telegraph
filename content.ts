@@ -6,6 +6,7 @@ import {
   sanitizeHtml,
 } from "./deps.ts";
 import {
+  Node,
   type NodeElement,
   SUPPORTED_TAGS,
   type SupportedTag,
@@ -67,7 +68,7 @@ function transformToIframeURL(url: string) {
  *
  * @return String or Node for creating pages in Telegraph.
  */
-export function parse(content: string, parseMode: ParseMode) {
+export function parse(content: string, parseMode: ParseMode): string | Node[] {
   const mode = parseMode.toLowerCase();
   if (!PARSE_MODES.includes(mode)) {
     throw new Error("Invalid parse mode: " + parseMode);
